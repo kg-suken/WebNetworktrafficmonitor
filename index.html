@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>リアルタイム通信量モニター</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .container {
+            text-align: center;
+            background-color: #fff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+        }
+        .network-info {
+            font-size: 2rem;
+            margin: 10px 0;
+        }
+        .upload {
+            color: green;
+        }
+        .download {
+            color: blue;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>リアルタイム通信量</h1>
+        <div class="network-info">
+            ↑ <span id="upload" class="upload">0.00</span> Mbps
+        </div>
+        <div class="network-info">
+            ↓ <span id="download" class="download">0.00</span> Mbps
+        </div>
+    </div>
+
+    <script>
+        // WebSocketサーバーに接続
+        const socket = new WebSocket("ws://localhost:8765");
+
+        // サーバーからメッセージを受信したときの処理
+        socket.onmessage = function(event) {
+            // 受信データをカンマで分割 (送信量, 受信量)
+            const data = event.data.split(',');
+            const upload = data[0];
+            const download = data[1];
+
+            // HTMLにリアルタイムのデータを表示
+            document.getElementById("upload").innerText = upload;
+            document.getElementById("download").innerText = download;
+        };
+
+        // WebSocket接続が確立されたときの処理
+        socket.onopen = function() {
+            console.log("WebSocket接続が確立されました");
+        };
+
+        // WebSocket接続が閉じられたときの処理
+        socket.onclose = function() {
+            console.log("WebSocket接続が閉じられました");
+        };
+    </script>
+</body>
+</html>
